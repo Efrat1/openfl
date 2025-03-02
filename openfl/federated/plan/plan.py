@@ -430,6 +430,7 @@ class Plan:
             {TEMPLATE: "openfl.federation.DataLoader", SETTINGS: {}},
         )
 
+        # TODO (efrat): if flag is on, create & pass verifiable dataset
         defaults[SETTINGS]["data_path"] = self.cols_data_paths[collaborator_name]
 
         if self.loader_ is None:
@@ -508,6 +509,7 @@ class Plan:
             defaults[SETTINGS]["task_runner"] = task_runner
         else:
             # TaskRunner subclassing API
+            # TODO (efrat): if flag is on, create & pass verifiable dataset
             data_loader = self.get_data_loader(collaborator_name)
             defaults[SETTINGS]["task_runner"] = self.get_task_runner(data_loader)
 

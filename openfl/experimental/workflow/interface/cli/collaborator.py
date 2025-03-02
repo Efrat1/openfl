@@ -92,6 +92,7 @@ def start_(plan, collaborator_name, secure, data_config="plan/data.yaml"):
 
     logger.info("🧿 Starting the Collaborator Service.")
 
+    # TODO (efrat): where is the data path(s)?
     plan.get_collaborator(collaborator_name).run()
 
 
