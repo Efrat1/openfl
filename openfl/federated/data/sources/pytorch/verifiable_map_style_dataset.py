@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import abstractmethod
-from itertools import chain
 
 import numpy as np
 import torch
@@ -19,11 +18,10 @@ class VerifiableMapStyleDataset(torch.utils.data.Dataset):
         self.transform = transform
         self.verifiable_dataset_info = vds
         self.verify_dataset = verify_dataset
-        self.datasources = self.create_datasets()
+        self.datasets = self.create_datasets()
 
         # create indices for fast lookup
-        lengths = list(map(len, self.datasources))
-        self.indices = list(chain(*[range(length) for length in lengths]))
+        lengths = list(map(len, self.datasets))
         self.cumulative_sizes = np.cumsum(lengths)
 
     def __getitem__(self, idx):
@@ -31,7 +29,7 @@ class VerifiableMapStyleDataset(torch.utils.data.Dataset):
         dataset_idx = self.cumulative_sizes.searchsorted(idx, side="right")
         # find the data in that sub-dataset
         data_idx = idx - self.cumulative_sizes[dataset_idx - 1] if dataset_idx > 0 else idx
-        item = self.datasources[dataset_idx][data_idx]
+        item = self.datasets[dataset_idx][data_idx]
         data_path = item["path"]
 
         if self.verify_dataset:
@@ -48,4 +46,4 @@ class VerifiableMapStyleDataset(torch.utils.data.Dataset):
 
     @abstractmethod
     def create_datasets(self):
-        raise NotImplementedError
+        pass

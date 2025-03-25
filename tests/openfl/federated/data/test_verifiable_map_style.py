@@ -95,7 +95,7 @@ def test_local_map_style_datasource_verbose_verify(data_sources):
         metadata={"test": "test"}
     )
     dataset_info_json = verifiable_dataset_info.to_json()
-    verifiable_dataset_info.verify_dataset(json.loads(dataset_info_json))
+    verifiable_dataset_info.verify_dataset(json.loads(dataset_info_json)["root_hash"])
     verifiable_dataset_info.verify_dataset()
     verifiable_map_style = MockVerifiableMapStyle(verifiable_dataset_info, verify_dataset=True)
     assert len(verifiable_map_style) == 12
@@ -146,15 +146,15 @@ def test_local_image_folder_map_style_datasource_verbose(fake_image_datasources)
     )
     verifiable_map_style = VerifiableImageFolder(verifiable_dataset_info, verify_dataset=False)
     assert len(verifiable_map_style) == 12
-    assert len(verifiable_map_style.datasources) == len(datasources)
+    assert len(verifiable_map_style.datasets) == len(datasources)
 
     for i in range(len(verifiable_map_style)):
         if i < 6:
-            assert verifiable_map_style[i][0] == verifiable_map_style.datasources[0][i]["data"]
-            assert verifiable_map_style[i][1] == verifiable_map_style.datasources[0][i]["label"]
+            assert verifiable_map_style[i][0] == verifiable_map_style.datasets[0][i]["data"]
+            assert verifiable_map_style[i][1] == verifiable_map_style.datasets[0][i]["label"]
         else:
-            assert verifiable_map_style[i][0] == verifiable_map_style.datasources[1][i - 6]["data"]
-            assert verifiable_map_style[i][1] == verifiable_map_style.datasources[1][i - 6]["label"]
+            assert verifiable_map_style[i][0] == verifiable_map_style.datasets[1][i - 6]["data"]
+            assert verifiable_map_style[i][1] == verifiable_map_style.datasets[1][i - 6]["label"]
 
 def test_local_image_folder_map_style_datasource_verbose_verify(fake_image_datasources):
     ds1, ds2, _ = fake_image_datasources
@@ -166,18 +166,18 @@ def test_local_image_folder_map_style_datasource_verbose_verify(fake_image_datas
         metadata={"test": "test"}
     )
     dataset_info_json = verifiable_dataset_info.to_json()
-    verifiable_dataset_info.verify_dataset(json.loads(dataset_info_json))
+    verifiable_dataset_info.verify_dataset(json.loads(dataset_info_json)["root_hash"])
     verifiable_map_style = VerifiableImageFolder(verifiable_dataset_info, verify_dataset=True)
     assert len(verifiable_map_style) == 12
-    assert len(verifiable_map_style.datasources) == len(datasources)
+    assert len(verifiable_map_style.datasets) == len(datasources)
 
     for i in range(len(verifiable_map_style)):
         if i < 6:
-            assert verifiable_map_style[i][0] == verifiable_map_style.datasources[0][i]["data"]
-            assert verifiable_map_style[i][1] == verifiable_map_style.datasources[0][i]["label"]
+            assert verifiable_map_style[i][0] == verifiable_map_style.datasets[0][i]["data"]
+            assert verifiable_map_style[i][1] == verifiable_map_style.datasets[0][i]["label"]
         else:
-            assert verifiable_map_style[i][0] == verifiable_map_style.datasources[1][i - 6]["data"]
-            assert verifiable_map_style[i][1] == verifiable_map_style.datasources[1][i - 6]["label"]
+            assert verifiable_map_style[i][0] == verifiable_map_style.datasets[1][i - 6]["data"]
+            assert verifiable_map_style[i][1] == verifiable_map_style.datasets[1][i - 6]["label"]
 
 
 def test_local_image_folder_map_style_datasource_verbose_labels(fake_image_datasources):
