@@ -9,6 +9,7 @@ from typing import List
 
 from openfl.federated.data.sources.data_source import DataSource, DataSourceType
 from openfl.federated.data.sources.local_data_source import LocalDataSource
+from openfl.federated.data.sources.s3_data_source import S3DataSource
 
 
 class VerifiableDatasetInfo:
@@ -129,6 +130,8 @@ class VerifiableDatasetInfo:
         for datasource in data_dict["data_sources"]:
             if datasource["type"] == DataSourceType.LOCAL.value:
                 data_source = LocalDataSource.from_dict(ds_dict=datasource, base_path=base_path)
+            elif datasource["type"] == DataSourceType.S3.value:
+                data_source = S3DataSource.from_dict(ds_dict=datasource)
             else:
                 raise ValueError(f"Unknown storage type: {datasource['type']}")
             data_sources.append(data_source)
