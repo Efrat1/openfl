@@ -36,7 +36,7 @@ class VerifiableDatasetInfo:
         all_hashes = {
             str(file_path): ds.compute_file_hash(str(file_path))
             for ds in self.data_sources
-            for file_path in ds.enumerate_files()
+            for file_path, _ in ds.enumerate_files()
         }
         return all_hashes
 

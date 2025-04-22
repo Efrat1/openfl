@@ -7,7 +7,7 @@ import hashlib
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Dict, Generator
+from typing import Any, Dict, Generator, Tuple
 
 
 class DataSourceType(Enum):
@@ -48,12 +48,23 @@ class DataSource(ABC):
         pass
 
     @abstractmethod
-    def enumerate_files(self) -> Generator[str, None, None]:
+    def enumerate_files(self) -> Generator[Tuple[str, str], None, None]:
         """
-        Enumerate all files in the data source.
+        Enumerate all files in the data source and yield their paths and labels.
 
+        Yields:
+            Tuple[str, str]: A tuple containing the file path and its label.
+        """
+        pass
+
+    @abstractmethod
+    def read_blob(self, path: str) -> bytes:
+        """
+        Read a blob from the data source.
+        Args:
+            path (str): Path to the file.
         Returns:
-            list: A list of objects
+            bytes: The file's content.
         """
         pass
 

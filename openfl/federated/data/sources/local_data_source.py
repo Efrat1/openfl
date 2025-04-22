@@ -6,7 +6,7 @@ import hashlib
 import os
 from hashlib import sha384
 from pathlib import Path
-from typing import Callable, Generator
+from typing import Callable, Generator, Tuple
 
 from openfl.federated.data.sources.data_source import DataSource, DataSourceType
 
@@ -45,7 +45,7 @@ class LocalDataSource(DataSource):
         """Return the full path to the source data."""
         return self._base_path / self.source_path
 
-    def enumerate_files(self) -> Generator[str, None, None]:
+    def enumerate_files(self) -> Generator[Tuple[str, str], None, None]:
         """Enumerate all files in the data source."""
         total_size_bytes = 0
         full_path = Path(self._base_path) / self.source_path
@@ -61,7 +61,7 @@ class LocalDataSource(DataSource):
                                 f"Total dataset size: {total_size_gb:.2f} GB exceeds "
                                 f"{self.max_dataset_size} GB"
                             )
-                    yield file_path
+                    yield str(file_path), file_path.parent.name
 
         elif full_path.is_file():
             if self.max_dataset_size > 0:
@@ -72,7 +72,7 @@ class LocalDataSource(DataSource):
                         f"Total dataset size: {total_size_gb:.2f} GB exceeds "
                         f"{self.max_dataset_size} GB"
                     )
-            yield full_path
+            yield str(full_path), full_path.parent.name
 
     def compute_file_hash(self, path: str) -> str:
         """Compute the hash of the file. Return hash on hexstring format."""
@@ -81,6 +81,11 @@ class LocalDataSource(DataSource):
             for byte_block in iter(lambda: file.read(65536), b""):
                 hash_obj.update(byte_block)
         return hash_obj.hexdigest()
+
+    def read_blob(self, path: str) -> bytes:
+        """Read a blob from the data source."""
+        with open(path, "rb") as file:
+            return file.read()
 
     @classmethod
     def from_dict(cls, ds_dict: dict, base_path):

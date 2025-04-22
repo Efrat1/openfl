@@ -39,12 +39,12 @@ def s3_data_source(mock_s3_bucket):
 def test_enumerate_files(s3_data_source, mock_s3_bucket):
     """Test that enumerate_files returns full S3 URIs."""
     expected_files = [
-        f"s3://{mock_s3_bucket}/folder1/file1.txt",
-        f"s3://{mock_s3_bucket}/folder1/file2.txt",
-        f"s3://{mock_s3_bucket}/folder2/subfolder/file3.txt",
-        f"s3://{mock_s3_bucket}/folder2/subfolder/file4.txt",
-        f"s3://{mock_s3_bucket}/folder3/file5.txt",
-        f"s3://{mock_s3_bucket}/folder3/subfolder/file6.txt",
+        (f"s3://{mock_s3_bucket}/folder1/file1.txt", "folder1"),
+        (f"s3://{mock_s3_bucket}/folder1/file2.txt", "folder1"),
+        (f"s3://{mock_s3_bucket}/folder2/subfolder/file3.txt", "subfolder"),
+        (f"s3://{mock_s3_bucket}/folder2/subfolder/file4.txt", "subfolder"),
+        (f"s3://{mock_s3_bucket}/folder3/file5.txt", "folder3"),
+        (f"s3://{mock_s3_bucket}/folder3/subfolder/file6.txt", "subfolder"),
     ]
 
     enumerated_files = list(s3_data_source.enumerate_files())
