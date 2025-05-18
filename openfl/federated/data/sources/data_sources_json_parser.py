@@ -10,12 +10,11 @@ from openfl.federated.data.sources.azure_blob_data_source import AzureBlobDataSo
 from openfl.federated.data.sources.local_data_source import LocalDataSource
 from openfl.federated.data.sources.s3_data_source import S3DataSource
 from openfl.federated.data.sources.verifiable_dataset_info import VerifiableDatasetInfo
-from openfl.utilities.path_check import is_directory_traversal
 
 
 class DataSourcesJsonParser:
     @staticmethod
-    def parse(json_string: str) -> VerifiableDatasetInfo:
+    def parse(json_string: str, label="", metadata="") -> VerifiableDatasetInfo:
         """
         Parse a JSON string into a dictionary.
 
@@ -36,43 +35,55 @@ class DataSourcesJsonParser:
             raise ValueError("No data sources were found.")
         return VerifiableDatasetInfo(
             data_sources=datasources,
-            label="",
+            label=label,
+            metadata=metadata,
         )
 
     @staticmethod
     def process_data_sources(data):
         """Process and validate data sources."""
-        cwd = os.getcwd()
+        os.getcwd()
         datasources = []
+        local_datasources = {}
         for source_name, source_info in data.items():
             source_type = source_info.get("type", None)
             if source_type is None:
                 raise ValueError(f"Missing 'type' key in data source configuration: {source_info}")
             params = source_info.get("params", {})
             if source_type == "local":
-                datasources.append(
-                    DataSourcesJsonParser.process_local_source(source_name, params, cwd)
-                )
+                local_datasources[source_name] = params
             elif source_type == "s3":
                 datasources.append(DataSourcesJsonParser.process_s3_source(source_name, params))
             elif source_type == "azure_blob":
                 datasources.append(
                     DataSourcesJsonParser.process_azure_blob_source(source_name, params)
                 )
+        if local_datasources:
+            DataSourcesJsonParser.process_local_sources(local_datasources, datasources)
         return [ds for ds in datasources if ds]
 
-    @staticmethod
-    def process_local_source(source_name, params, cwd):
-        """Process a local data source."""
-        path = params.get("path", None)
-        if not path:
-            raise ValueError(f"Missing 'path' parameter for local data source '{source_name}'")
-        abs_path = os.path.abspath(path)
-        rel_path = os.path.relpath(abs_path, cwd)
-        if rel_path and not is_directory_traversal(rel_path):
-            return LocalDataSource(source_name, rel_path, base_path=Path("."))
-        else:
-            raise ValueError(f"Invalid path for local data source '{source_name}': {path}.")
+    def process_local_sources(local_datasources, datasources):
+        """Process and validate local data sources."""
+        # The reason we use common base_dir and source_path relative to that base
+        # is to simplify path management in containerized environments, such as Docker.
+        # By using a common base_dir, we can ensure that paths remain consistent
+        # when mounting volumes, as only the base_dir needs to be adjusted to point
+        # to the mount path inside the container.
+        # This way, we only need to adjust the base_dir to point to the mount path.
+        source_names, absolute_paths = zip(
+            *[
+                (source_name, os.path.realpath(params.get("path", None)))
+                for source_name, params in local_datasources.items()
+            ]
+        )
+        base_dir = os.path.commonpath(absolute_paths)
+        for source_name, data_path in zip(source_names, absolute_paths):
+            relative_path = os.path.relpath(data_path, base_dir)
+            datasources.append(
+                LocalDataSource(
+                    name=source_name, source_path=Path(relative_path), base_path=base_dir
+                )
+            )
 
     @staticmethod
     def process_s3_source(source_name, params):

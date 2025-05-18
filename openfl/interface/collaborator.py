@@ -234,6 +234,8 @@ def register_data_path(collaborator_name, data_path=None, silent=False):
         "This file should contain a JSON object with the data sources to be registered. For 'local'"
         " type, 'params' must include: 'path'. For 's3' type, 'params' must include: 'uri', "
         "'access_key_env_name', 'secret_key_env_name', 'secret_name', and optionally 'endpoint'."
+        " For 'azure_blob' type, 'params' must include: 'connection_string', 'container_name', and "
+        "optionally 'folder_prefix'."
     ),
 )
 def calchash(data_path):
